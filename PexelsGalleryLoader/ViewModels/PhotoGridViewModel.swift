@@ -5,7 +5,9 @@ class PhotoGridViewModel: ObservableObject {
     @Published var images: [UIImage] = []
     @Published var isLoading = false
 
-    // Use a configured session to avoid overloads
+    private let service: PexelsServiceProtocol
+
+    // Custom session to avoid overloads
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 10
@@ -13,13 +15,18 @@ class PhotoGridViewModel: ObservableObject {
         return URLSession(configuration: config)
     }()
 
+    // Inject service through the initializer
+    init(service: PexelsServiceProtocol) {
+        self.service = service
+    }
+
     func loadImages(for query: String) async {
         print("🔍 Starting load for query: \(query)")
         isLoading = true
         images.removeAll()
 
         do {
-            let photos = try await PexelsAPIService.fetchPhotos(for: query)
+            let photos = try await service.fetchPhotos(for: query)
             print("📦 API returned \(photos.count) photos")
 
             await withTaskGroup(of: UIImage?.self) { group in
