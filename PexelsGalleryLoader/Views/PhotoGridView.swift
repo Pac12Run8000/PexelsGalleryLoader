@@ -26,7 +26,7 @@ struct PhotoGridView: View {
             }
             .navigationTitle("Pexels Gallery")
             .task {
-                await viewModel.loadImages(for: "city")
+                await viewModel.loadImages(for: "desert")
             }
         }
     }
