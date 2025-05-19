@@ -1,10 +1,3 @@
-//
-//  PexelsGalleryLoaderApp.swift
-//  PexelsGalleryLoader
-//
-//  Created by Norbert Grover on 5/18/25.
-//
-
 import SwiftUI
 
 @main
