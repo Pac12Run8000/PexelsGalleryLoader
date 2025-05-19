@@ -2,8 +2,6 @@ import SwiftUI
 
 struct PhotoGridView: View {
     @StateObject private var viewModel = PhotoGridViewModel()
-    
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
         NavigationView {
@@ -12,16 +10,20 @@ struct PhotoGridView: View {
                     ProgressView("Loading...")
                         .padding()
                 } else {
-                    LazyVGrid(columns: columns, spacing: 10) {
+                    VStack(spacing: 20) {
                         ForEach(viewModel.images.indices, id: \.self) { index in
                             Image(uiImage: viewModel.images[index])
                                 .resizable()
-                                .scaledToFill()
-                                .frame(height: 150)
-                                .clipped()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 250)
+                                .frame(maxWidth: .infinity)
+                                .background(Color(.systemBackground))
+                                .cornerRadius(16)
+                                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                .padding(.horizontal)
                         }
                     }
-                    .padding()
+                    .padding(.top)
                 }
             }
             .navigationTitle("Pexels Gallery")
