@@ -48,9 +48,7 @@ class PhotoGridViewModel: ObservableObject {
                     }
                 }
             }
-
             print("✅ Finished loading \(images.count) images")
-
         } catch {
             print("❌ Error during loadImages: \(error.localizedDescription)")
         }

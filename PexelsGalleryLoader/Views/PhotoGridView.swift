@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct PhotoGridView: View {
-    @StateObject private var viewModel = PhotoGridViewModel(service: PexelsAPIService())
+    @StateObject private var viewModel:PhotoGridViewModel
+    
+    init(viewModel:PhotoGridViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         NavigationView {
