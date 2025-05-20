@@ -4,10 +4,10 @@ import SwiftUI
 class PhotoGridViewModel: ObservableObject {
     @Published var images: [UIImage] = []
     @Published var isLoading = false
-
-    public let searchOptions = ["summer", "nature", "football", "boxing", "karate"]
     
     private let service: PexelsServiceProtocol
+    
+    public let searchOptions = ["summer", "nature", "football", "boxing", "karate"]
 
     // Custom session to avoid overloads
     private let session: URLSession = {

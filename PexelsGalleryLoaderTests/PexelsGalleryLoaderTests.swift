@@ -1,36 +1,50 @@
-//
-//  PexelsGalleryLoaderTests.swift
-//  PexelsGalleryLoaderTests
-//
-//  Created by Norbert Grover on 5/18/25.
-//
-
 import XCTest
 @testable import PexelsGalleryLoader
+import SwiftUI
 
-final class PexelsGalleryLoaderTests: XCTestCase {
+@MainActor
+final class PhotoGridViewModelTests: XCTestCase {
+    
+    var viewModel: PhotoGridViewModel!
+    var mockService: MockPexelsService!
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    override func setUp() async throws {
+        mockService = MockPexelsService()
+        viewModel = PhotoGridViewModel(service: mockService)
+    }
+    
+    override func tearDown() async throws {
+        mockService = nil
+        viewModel = nil
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testLoadImages_populatesImages() async throws {
+        XCTAssertTrue(viewModel.images.isEmpty)
+        await viewModel.loadImages(for: "boxing")
+
+        XCTAssertEqual(viewModel.images.count, 5, "Expected 5 images to be loaded from mock service.")
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testIsLoadingTransitions() async throws {
+        XCTAssertFalse(viewModel.isLoading)
+        
+        let loadTask = Task {
+            await viewModel.loadImages(for: "football")
         }
+        
+        // Yield to allow the loadImages task to start and update `isLoading`
+        await Task.yield()
+        XCTAssertTrue(viewModel.isLoading, "`isLoading` should be true during fetch")
+        
+        // Wait for the task to complete
+        await loadTask.value
+        XCTAssertFalse(viewModel.isLoading, "`isLoading` should be false after fetch")
     }
 
+
+    func testImagesLoadedFromAsset() async throws {
+        await viewModel.loadImages(for: "karate")
+        let nonNilImages = viewModel.images.filter { $0 != nil }
+        XCTAssertEqual(nonNilImages.count, 5, "All images should load from assets without nil")
+    }
 }
