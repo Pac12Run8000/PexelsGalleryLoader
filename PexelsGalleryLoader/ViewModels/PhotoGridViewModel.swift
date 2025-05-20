@@ -5,6 +5,8 @@ class PhotoGridViewModel: ObservableObject {
     @Published var images: [UIImage] = []
     @Published var isLoading = false
 
+    public let searchOptions = ["summer", "nature", "football", "boxing", "karate"]
+    
     private let service: PexelsServiceProtocol
 
     // Custom session to avoid overloads

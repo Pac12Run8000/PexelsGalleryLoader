@@ -5,8 +5,6 @@ struct PhotoGridView: View {
     @State private var selectedQuery = "summer"
     @State private var submittedQuery = "summer"
 
-    private let searchOptions = ["summer", "nature", "football", "boxing", "karate"]
-
     init(viewModel: PhotoGridViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
@@ -17,7 +15,7 @@ struct PhotoGridView: View {
                 // Dropdown and submit button
                 HStack {
                     Picker("Search Topic", selection: $selectedQuery) {
-                        ForEach(searchOptions, id: \.self) { option in
+                        ForEach(viewModel.searchOptions, id: \.self) { option in
                             Text(option.capitalized).tag(option)
                         }
                     }
