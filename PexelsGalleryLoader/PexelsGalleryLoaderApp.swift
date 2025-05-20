@@ -4,7 +4,7 @@ import SwiftUI
 struct PexelsGalleryLoaderApp: App {
     var body: some Scene {
         WindowGroup {
-            PhotoGridView(viewModel: PhotoGridViewModel(service: MockPexelsService()))
+            PhotoGridView(viewModel: PhotoGridViewModel(service: PexelsAPIService()))
         }
     }
 }
