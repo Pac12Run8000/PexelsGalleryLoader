@@ -2,7 +2,8 @@ import Foundation
 
 struct MockPexelsService: PexelsServiceProtocol {
     func fetchPhotos(for query: String) async throws -> [Photo] {
-        let assetNames = Array(repeating: "boxingImage", count: 5)
+//        let assetNames = Array(repeating: "boxingImage", count: 5)
+        let assetNames:[String] = ["boxingImage", "football1", "football2", "football1", "football2"]
         
         return assetNames.enumerated().map { index, name in
             Photo(
