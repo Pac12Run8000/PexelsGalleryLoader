@@ -4,12 +4,10 @@ import SwiftUI
 class PhotoGridViewModel: ObservableObject {
     @Published var images: [UIImage] = []
     @Published var isLoading = false
+    let searchOptions: [String]
     
     private let service: PexelsServiceProtocol
-    
-    public let searchOptions = ["summer", "nature", "football", "boxing", "karate"]
 
-    // Custom session to avoid overloads
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 10
@@ -17,9 +15,15 @@ class PhotoGridViewModel: ObservableObject {
         return URLSession(configuration: config)
     }()
 
-    // Inject service through the initializer
     init(service: PexelsServiceProtocol) {
         self.service = service
+
+        // Dynamically assign searchOptions based on service type
+        if service is MockPexelsService {
+            self.searchOptions = ["boxingImage", "football1", "football2", "football1", "football2"]
+        } else {
+            self.searchOptions = ["summer", "nature", "football", "boxing", "karate"]
+        }
     }
 
     func loadImages(for query: String) async {
@@ -28,12 +32,11 @@ class PhotoGridViewModel: ObservableObject {
 
         do {
             let photos = try await service.fetchPhotos(for: query)
-            
+
             await withTaskGroup(of: UIImage?.self) { group in
                 for photo in photos.prefix(5) {
                     let path = photo.src.medium
                     group.addTask {
-                        // If the path doesn't start with http, assume it's an asset name
                         if path.hasPrefix("http") {
                             return await self.retryingImageDownload(from: path, retries: 2, delay: 1.0)
                         } else {
@@ -55,7 +58,6 @@ class PhotoGridViewModel: ObservableObject {
         isLoading = false
     }
 
-
     private func retryingImageDownload(from urlString: String, retries: Int, delay: TimeInterval) async -> UIImage? {
         guard let url = URL(string: urlString) else {
             print("❌ Invalid URL: \(urlString)")
@@ -68,20 +70,16 @@ class PhotoGridViewModel: ObservableObject {
                 if let image = UIImage(data: data) {
                     print("✅ Attempt \(attempt): Image created")
                     return image
-                } else {
-                    print("⚠️ Attempt \(attempt): Couldn't convert data to UIImage")
                 }
             } catch {
                 print("❌ Attempt \(attempt) failed: \(error.localizedDescription)")
             }
 
             if attempt <= retries {
-                print("⏱️ Waiting \(delay)s before retry...")
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
             }
         }
 
-        print("💀 All attempts failed: \(urlString)")
         return nil
     }
 }
