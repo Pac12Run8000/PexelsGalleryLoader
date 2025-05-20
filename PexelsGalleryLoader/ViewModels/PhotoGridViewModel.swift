@@ -21,40 +21,38 @@ class PhotoGridViewModel: ObservableObject {
     }
 
     func loadImages(for query: String) async {
-        print("🔍 Starting load for query: \(query)")
         isLoading = true
         images.removeAll()
 
         do {
             let photos = try await service.fetchPhotos(for: query)
-            print("📦 API returned \(photos.count) photos")
-
+            
             await withTaskGroup(of: UIImage?.self) { group in
-                for (index, photo) in photos.prefix(5).enumerated() {
-                    let urlString = photo.src.medium
-                    print("🔗 [\(index)] Queuing download: \(urlString)")
-
+                for photo in photos.prefix(5) {
+                    let path = photo.src.medium
                     group.addTask {
-                        await self.retryingImageDownload(from: urlString, retries: 2, delay: 1.0)
+                        // If the path doesn't start with http, assume it's an asset name
+                        if path.hasPrefix("http") {
+                            return await self.retryingImageDownload(from: path, retries: 2, delay: 1.0)
+                        } else {
+                            return UIImage(named: path)
+                        }
                     }
                 }
 
                 for await image in group {
                     if let image = image {
-                        print("🖼️ Successfully loaded image")
                         images.append(image)
-                    } else {
-                        print("❌ Skipping failed image")
                     }
                 }
             }
-            print("✅ Finished loading \(images.count) images")
         } catch {
-            print("❌ Error during loadImages: \(error.localizedDescription)")
+            print("Error loading images: \(error)")
         }
 
         isLoading = false
     }
+
 
     private func retryingImageDownload(from urlString: String, retries: Int, delay: TimeInterval) async -> UIImage? {
         guard let url = URL(string: urlString) else {
