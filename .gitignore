@@ -1,0 +1,13 @@
+# Xcode and macOS related files
+.DS_Store
+DerivedData/
+*.xcworkspace
+xcuserdata/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# Ignore API key file
+PexelsGalleryLoader/PexelsGalleryLoader/SecurityConstants/SecurityValues.swift
